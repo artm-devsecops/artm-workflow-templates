@@ -1,0 +1,54 @@
+name: artm-devsecops-build-java
+
+on:
+  workflow_call:
+    inputs:
+      java_version:
+        required: true
+        type: string
+      minimum_coverage:
+        required: true
+        default: 80
+        type: number
+      fail_below_threshold:
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  build-application:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ inputs.java_version }}
+          distribution: "temurin"
+
+      - name: Restore dependencies
+        run: mvn dependency:resolve
+
+      - name: Build and tests
+        run: mvn --batch-mode --update-snapshots verify test package
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          junit_files: "**/surefire-reports/TEST-*.xml"
+
+      - name: Code Coverage Report
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: "target/site/jacoco/jacoco.xml"
+          coverage_report_name: Coverage
+          coverage_report_title: JaCoCo
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
+          minimum_coverage: ${{ inputs.minimum_coverage }}
+          fail_below_threshold: ${{ inputs.fail_below_threshold }}
+          publish_only_summary: false

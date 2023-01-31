@@ -1,0 +1,72 @@
+name: artm-devsecops-build-image
+
+on:
+  workflow_run:
+    workflows: ["build-application"]
+    types:
+      - completed
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+      image_context:
+        required: true
+        type: string
+      image_name:
+        required: true
+        default: ${{ github.repository }}
+        type: string
+      image_files:
+        required: true
+        type: string
+      container_registry:
+        required: true
+        type: string
+      scan_offline:
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  image-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Container build
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ inputs.container_registry }}/${{ inputs.image_name}}
+          tags: ${{ inputs.image_tag }} ${{ github.sha }}
+          context: ${{ inputs.image_context }}
+          containerfiles: ${{ inputs.image_files }}
+
+      - name: Container push in oci format
+        run: buildah push ${{ inputs.container_registry }}/${{ inputs.image_name }}:${{ inputs.image_tag }} oci:./oci-image
+
+      - name: Run vulnerability scanner in tarball mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          input: ./oci-image
+          severity: "CRITICAL,HIGH"
+          format: "sarif"
+          output: "trivy-results.sarif"
+        env:
+          TRIVY_OFFLINE_SCAN: ${{ inputs.scan_offline }}
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: "trivy-results.sarif"
+
+      - name: Log in to registry
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ${{ inputs.container_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image push to registry
+        run: |
+          buildah push ${{ inputs.container_registry }}/${{ inputs.image_name }}:${{ inputs.tag }}
+          buildah push ${{ inputs.container_registry }}/${{ inputs.image_name }}:${{ github.sha }}
