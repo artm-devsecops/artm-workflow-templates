@@ -1,10 +1,6 @@
 name: artm-devsecops-build-image
 
 on:
-  workflow_run:
-    workflows: ["build-application"]
-    types:
-      - completed
   workflow_call:
     inputs:
       image_tag:
