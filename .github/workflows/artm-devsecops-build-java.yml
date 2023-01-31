@@ -7,11 +7,9 @@ on:
         required: true
         type: string
       minimum_coverage:
-        required: true
         default: 80
         type: number
       fail_below_threshold:
-        required: true
         default: true
         type: boolean
 

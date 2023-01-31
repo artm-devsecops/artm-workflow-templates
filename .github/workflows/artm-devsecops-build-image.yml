@@ -14,7 +14,6 @@ on:
         required: true
         type: string
       image_name:
-        required: true
         default: ${{ github.repository }}
         type: string
       image_files:
@@ -24,7 +23,6 @@ on:
         required: true
         type: string
       scan_offline:
-        required: true
         default: true
         type: boolean
 
