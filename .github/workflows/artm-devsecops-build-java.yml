@@ -6,6 +6,12 @@ on:
       java_version:
         required: true
         type: string
+      artifact_name:
+        required: true
+        type: string
+      artifact_path:
+        required: true
+        type: string
       minimum_coverage:
         default: 80
         type: number
@@ -50,3 +56,9 @@ jobs:
           minimum_coverage: ${{ inputs.minimum_coverage }}
           fail_below_threshold: ${{ inputs.fail_below_threshold }}
           publish_only_summary: false
+
+      - name: Cache artifacts
+        uses: actions/cache@v3
+        with:
+          path: ${{ inputs.artifact_path }}/${{ inputs.artifact_name }}
+          key: ${{ github.sha }}
