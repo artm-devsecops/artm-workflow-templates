@@ -58,7 +58,7 @@ jobs:
           publish_only_summary: false
 
       - name: Cache artifacts
-        uses: actions/cache@v3
+        uses: actions/cache/save@v3
         with:
           path: ${{ inputs.artifact_path }}/${{ inputs.artifact_name }}
           key: ${{ github.sha }}
