@@ -45,6 +45,7 @@ jobs:
       - name: debug
         run: |
           ls -la
+          ls -la "./target"
 
       - name: Container build
         uses: redhat-actions/buildah-build@v2
