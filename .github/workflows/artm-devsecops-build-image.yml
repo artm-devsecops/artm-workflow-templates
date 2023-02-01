@@ -38,6 +38,10 @@ jobs:
           path: ${{ inputs.artifact_path }}/${{ inputs.artifact_name }}
           key: ${{ github.sha }}
 
+      - name: debug
+        run: |
+          ls -la
+
       - name: Container build
         uses: redhat-actions/buildah-build@v2
         with:
