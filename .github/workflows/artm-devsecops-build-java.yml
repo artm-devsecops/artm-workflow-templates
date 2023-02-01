@@ -62,3 +62,4 @@ jobs:
         with:
           path: ${{ inputs.artifact_path }}/${{ inputs.artifact_name }}
           key: ${{ github.sha }}
+          fail-on-cache-miss: true
