@@ -81,5 +81,5 @@ jobs:
 
       - name: Image push to registry
         run: |
-          buildah push ${{ inputs.container_registry }}/${{ inputs.image_name }}:${{ inputs.tag }}
+          buildah push ${{ inputs.container_registry }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
           buildah push ${{ inputs.container_registry }}/${{ inputs.image_name }}:${{ github.sha }}
