@@ -6,9 +6,6 @@ on:
       java_version:
         required: true
         type: string
-      artifact_name:
-        required: true
-        type: string
       artifact_path:
         required: true
         type: string
@@ -60,5 +57,5 @@ jobs:
       - name: Cache artifacts
         uses: actions/cache/save@v3
         with:
-          path: ${{ inputs.artifact_path }}/${{ inputs.artifact_name }}
+          path: ${{ inputs.artifact_path }}
           key: ${{ github.sha }}
