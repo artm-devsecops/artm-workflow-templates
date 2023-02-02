@@ -39,10 +39,6 @@ jobs:
           key: ${{ github.sha }}
           fail-on-cache-miss: true
 
-      - name: debug
-        run: |
-          ls -la "./target"
-
       - name: Container build
         uses: redhat-actions/buildah-build@v2
         with:
