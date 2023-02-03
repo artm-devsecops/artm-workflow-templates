@@ -1,0 +1,60 @@
+name: artm-devsecops-build-python
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        required: true
+        type: string
+      minimum_coverage:
+        default: "0.8"
+        type: string
+
+jobs:
+  build-application:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.python_version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Test with pytest
+        run: |
+          pytest --doctest-modules --junitxml=junit/test-results.xml --cov-report=xml:cov/coverage.xml --cov-report=html
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          junit_files: junit/*.xml
+
+      - name: Publish Code Coverage
+        uses: orgoro/coverage@v3
+        with:
+          coverageFile: cov/coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          thresholdAll: ${{ inputs.minimum_coverage }}
+
+      - name: Pytest coverage comment
+        if: github.event_name == 'pull_request'
+        uses: MishaKav/pytest-coverage-comment@v1.1.43
+        with:
+          pytest-coverage-path: cov/coverage.xml
+          junitxml-path: junit/test-results.xml
