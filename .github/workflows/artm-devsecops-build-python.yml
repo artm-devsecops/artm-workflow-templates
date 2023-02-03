@@ -46,6 +46,7 @@ jobs:
           junit_files: junit/*.xml
 
       - name: Publish Code Coverage
+        if: github.event_name == 'pull_request' 
         uses: orgoro/coverage@v3
         with:
           coverageFile: cov/coverage.xml
