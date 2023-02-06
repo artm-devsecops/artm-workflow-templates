@@ -37,7 +37,7 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest --doctest-modules --junitxml=junit/test-results.xml --cov-report=xml:cov/coverage.xml --cov-report=html
+          pytest --doctest-modules --junitxml=junit/test-results.xml --cov-report=xml:cov/coverage.xml --cov='.' --cov-report=html
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
